@@ -3,190 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法拉第电磁感应定律 (Faraday's Law Simulation)</title>
+    <title>Faraday's Electromagnetic Induction Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        #simulation-container {
-            width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        #canvas-container {
-            position: relative;
-            margin-bottom: 20px;
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
         }
         canvas {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            display: block;
-            margin: 0 auto;
-        }
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .control-group {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            min-width: 200px;
-        }
-        .control-group h3 {
-            margin-top: 0;
-            font-size: 16px;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-        input[type="range"] {
+            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            border-radius: 8px;
             width: 100%;
-        }
-        .value-display {
-            font-size: 12px;
-            color: #666;
-            text-align: right;
+            height: auto;
         }
         button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 5px 0;
+            transition: transform 0.2s, background-color 0.2s;
         }
         button:hover {
-            background-color: #45a049;
+            transform: scale(1.05);
         }
-        .instructions {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
-            font-size: 14px;
+        .control-group {
+            transition: box-shadow 0.2s;
         }
-        .icon-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .icon-button {
-            background-color: #ddd;
-            border: none;
-            border-radius: 4px;
-            padding: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .icon-button:hover {
-            background-color: #ccc;
+        .control-group:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
-    <div id="simulation-container">
-        <h1>法拉第电磁感应定律 (Faraday's Law Simulation)</h1>
-        
-        <div id="canvas-container">
-            <canvas id="simulationCanvas" width="760" height="450"></canvas>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="simulation-container" class="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-8 fade-in">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Faraday's Electromagnetic Induction Simulation</h1>
+        <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+            <canvas id="simulationCanvas" width="800" height="500"></canvas>
         </div>
-        
-        <div class="controls">
-            <div class="control-group">
-                <h3>磁铁控制 (Magnet Controls)</h3>
-                <label>
-                    <input type="checkbox" id="showFieldLines" checked> 显示磁感线 (Field Lines)
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="control-group bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Magnet Controls</h3>
+                <label class="flex items-center mb-3">
+                    <input type="checkbox" id="showFieldLines" checked class="h-4 w-4 text-blue-600 rounded mr-2">
+                    <span class="text-sm text-gray-600">Show Field Lines</span>
                 </label>
-                <button id="reversePolarity">反转磁极 (Reverse Polarity)</button>
-                <button id="toggleMovement">反转运动方向 (Reverse Movement)</button>
-                <div class="icon-buttons">
-                    <button class="icon-button" id="moveLeft">← 向左移动</button>
-                    <button class="icon-button" id="moveRight">→ 向右移动</button>
+                <button id="reversePolarity" class="bg-blue-600 text-white px-4 py-2 rounded-lg mb-3 hover:bg-blue-700">Reverse Polarity</button>
+                <button id="toggleMovement" class="bg-blue-600 text-white px-4 py-2 rounded-lg mb-3 hover:bg-blue-700">Reverse Movement</button>
+                <div class="flex gap-2">
+                    <button id="moveLeft" class="icon-button bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 flex-1">← Move Left</button>
+                    <button id="moveRight" class="icon-button bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 flex-1">Move Right →</button>
                 </div>
             </div>
-            
-            <div class="control-group">
-                <h3>线圈控制 (Coil Controls)</h3>
-                <label>
-                    线圈匝数 (Turns):
-                    <input type="range" id="coilTurns" min="1" max="10" step="1" value="4">
-                    <span class="value-display" id="turnsValue">4</span>
+            <div class="control-group bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Coil Controls</h3>
+                <label class="block mb-3">
+                    <span class="text-sm text-gray-600">Coil Turns: <span id="turnsValue" class="font-medium">4</span></span>
+                    <input type="range" id="coilTurns" min="1" max="10" step="1" value="4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                 </label>
-                <label>
-                    线圈大小 (Size):
-                    <input type="range" id="coilSize" min="30" max="80" step="5" value="50">
-                    <span class="value-display" id="sizeValue">50</span>
+                <label class="block mb-3">
+                    <span class="text-sm text-gray-600">Coil Size: <span id="sizeValue" class="font-medium">50</span></span>
+                    <input type="range" id="coilSize" min="30" max="80" step="5" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                 </label>
-                <div class="icon-buttons">
-                    <button class="icon-button" id="coilConfig1">单线圈 (Single)</button>
-                    <button class="icon-button" id="coilConfig2">双线圈 (Double)</button>
+                <div class="flex gap-2">
+                    <button id="coilConfig1" class="icon-button bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 flex-1">Single Coil</button>
+                    <button id="coilConfig2" class="icon-button bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 flex-1">Double Coil</button>
                 </div>
             </div>
-            
-            <div class="control-group">
-                <h3>显示选项 (Display Options)</h3>
-                <label>
-                    <input type="checkbox" id="showVoltmeter" checked> 电压表 (Voltmeter)
+            <div class="control-group bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Display Options</h3>
+                <label class="flex items-center mb-3">
+                    <input type="checkbox" id="showVoltmeter" checked class="h-4 w-4 text-blue-600 rounded mr-2">
+                    <span class="text-sm text-gray-600">Show Voltmeter</span>
                 </label>
-                <label>
-                    <input type="checkbox" id="showFlux" checked> 磁通量 (Magnetic Flux)
+                <label class="flex items-center mb-3">
+                    <input type="checkbox" id="showFlux" checked class="h-4 w-4 text-blue-600 rounded mr-2">
+                    <span class="text-sm text-gray-600">Show Magnetic Flux</span>
                 </label>
             </div>
         </div>
-        
-        <div class="instructions">
-            <p><strong>说明 (Instructions):</strong> 移动磁铁靠近或远离线圈会产生感应电流。电压表(电压)测量感应电动势(EMF)，灯泡会在有电流时发光。白色曲线表示磁感线。</p>
-            <p>The voltmeter (电压) measures the induced EMF generated as the magnetic field through the coil changes. The bulb lights up when current flows. White lines show magnetic field lines.</p>
+        <div class="bg-green-50 p-4 rounded-lg text-sm text-gray-700">
+            <p><strong>Instructions:</strong> Drag the magnet to induce current in the coil(s). The voltmeter measures the induced EMF, and the bulb glows when current flows. White lines represent magnetic field lines. Adjust settings to explore Faraday's Law.</p>
         </div>
+        <div id="error-message" class="text-red-600 text-sm mt-4 hidden"></div>
     </div>
 
     <script>
-        // Main simulation class
         class FaradaySimulation {
             constructor(canvas) {
                 this.canvas = canvas;
                 this.ctx = canvas.getContext('2d');
+                if (!this.ctx) {
+                    this.showError('Failed to get 2D context from canvas.');
+                    return;
+                }
                 this.width = canvas.width;
                 this.height = canvas.height;
-                
-                // Simulation parameters
+                this.scaleX = this.width / 800; // Normalize to a base width of 800
+                this.scaleY = this.height / 500; // Normalize to a base height of 500
+
+                // Simulation parameters scaled to canvas
                 this.magnet = {
-                    x: 150,
-                    y: 250,
-                    width: 40,
-                    height: 80,
+                    x: 150 * this.scaleX,
+                    y: 250 * this.scaleY,
+                    width: 40 * this.scaleX,
+                    height: 80 * this.scaleY,
                     strength: 1.0,
-                    northColor: '#ff4444',
-                    southColor: '#4444ff',
+                    northColor: '#ef4444',
+                    southColor: '#3b82f6',
                     isDragging: false,
                     dragOffsetX: 0,
                     dragOffsetY: 0,
-                    movementDirection: 1, // 1 for right, -1 for left
+                    movementDirection: 1,
                     movementSpeed: 0,
                     autoMoving: false
                 };
-                
                 this.coils = [
                     {
-                        x: 500,
-                        y: 250,
-                        radius: 50,
+                        x: 500 * this.scaleX,
+                        y: 250 * this.scaleY,
+                        radius: 50 * this.scaleX,
                         turns: 4,
                         resistance: 10,
                         current: 0,
@@ -195,9 +129,9 @@
                         visible: true
                     },
                     {
-                        x: 650,
-                        y: 250,
-                        radius: 50,
+                        x: 650 * this.scaleX,
+                        y: 250 * this.scaleY,
+                        radius: 50 * this.scaleX,
                         turns: 4,
                         resistance: 10,
                         current: 0,
@@ -206,752 +140,535 @@
                         visible: false
                     }
                 ];
-                
                 this.voltmeter = {
-                    x: 600,
-                    y: 100,
-                    width: 80,
-                    height: 60,
+                    x: 600 * this.scaleX,
+                    y: 100 * this.scaleY,
+                    width: 80 * this.scaleX,
+                    height: 60 * this.scaleY,
                     visible: true,
-                    voltage: 0,
-                    label: "电压" // Chinese for "voltage"
+                    voltage: 0
                 };
-                
                 this.fieldLinesVisible = true;
                 this.fluxVisible = true;
-                
-                // Animation variables
                 this.lastTime = 0;
-                this.animationId = null;
                 this.lastMagnetX = this.magnet.x;
-                
-                // Event listeners
+
                 this.setupEventListeners();
-                
-                // Start animation
                 this.animate();
             }
-            
+
+            showError(message) {
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = message;
+            }
+
             setupEventListeners() {
-                // Magnet dragging
-                this.canvas.addEventListener('mousedown', (e) => {
-                    const rect = this.canvas.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    if (this.isPointInMagnet(mouseX, mouseY)) {
-                        this.magnet.isDragging = true;
-                        this.magnet.dragOffsetX = mouseX - this.magnet.x;
-                        this.magnet.dragOffsetY = mouseY - this.magnet.y;
-                        this.magnet.autoMoving = false;
-                        this.magnet.movementSpeed = 0;
-                    }
-                });
-                
-                this.canvas.addEventListener('mousemove', (e) => {
-                    if (this.magnet.isDragging) {
+                try {
+                    this.canvas.addEventListener('mousedown', (e) => {
                         const rect = this.canvas.getBoundingClientRect();
-                        this.magnet.x = e.clientX - rect.left - this.magnet.dragOffsetX;
-                        this.magnet.y = e.clientY - rect.top - this.magnet.dragOffsetY;
-                        
-                        // Keep magnet within bounds
-                        this.magnet.x = Math.max(this.magnet.width/2, Math.min(this.width - this.magnet.width/2, this.magnet.x));
-                        this.magnet.y = Math.max(this.magnet.height/2, Math.min(this.height - this.magnet.height/2, this.magnet.y));
-                    }
-                });
-                
-                this.canvas.addEventListener('mouseup', () => {
-                    this.magnet.isDragging = false;
-                });
-                
-                this.canvas.addEventListener('mouseleave', () => {
-                    this.magnet.isDragging = false;
-                });
-                
-                // Touch support
-                this.canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    const rect = this.canvas.getBoundingClientRect();
-                    const touch = e.touches[0];
-                    const mouseX = touch.clientX - rect.left;
-                    const mouseY = touch.clientY - rect.top;
-                    
-                    if (this.isPointInMagnet(mouseX, mouseY)) {
-                        this.magnet.isDragging = true;
-                        this.magnet.dragOffsetX = mouseX - this.magnet.x;
-                        this.magnet.dragOffsetY = mouseY - this.magnet.y;
-                        this.magnet.autoMoving = false;
-                        this.magnet.movementSpeed = 0;
-                    }
-                });
-                
-                this.canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    if (this.magnet.isDragging) {
+                        const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
+                        const mouseY = (e.clientY - rect.top) * (this.height / rect.height);
+                        if (this.isPointInMagnet(mouseX, mouseY)) {
+                            this.magnet.isDragging = true;
+                            this.magnet.dragOffsetX = mouseX - this.magnet.x;
+                            this.magnet.dragOffsetY = mouseY - this.magnet.y;
+                            this.magnet.autoMoving = false;
+                            this.magnet.movementSpeed = 0;
+                        }
+                    });
+
+                    this.canvas.addEventListener('mousemove', (e) => {
+                        if (this.magnet.isDragging) {
+                            const rect = this.canvas.getBoundingClientRect();
+                            this.magnet.x = (e.clientX - rect.left) * (this.width / rect.width) - this.magnet.dragOffsetX;
+                            this.magnet.y = (e.clientY - rect.top) * (this.height / rect.height) - this.magnet.dragOffsetY;
+                            this.magnet.x = Math.max(this.magnet.width / 2, Math.min(this.width - this.magnet.width / 2, this.magnet.x));
+                            this.magnet.y = Math.max(this.magnet.height / 2, Math.min(this.height - this.magnet.height / 2, this.magnet.y));
+                        }
+                    });
+
+                    this.canvas.addEventListener('mouseup', () => {
+                        this.magnet.isDragging = false;
+                    });
+
+                    this.canvas.addEventListener('mouseleave', () => {
+                        this.magnet.isDragging = false;
+                    });
+
+                    this.canvas.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
                         const rect = this.canvas.getBoundingClientRect();
                         const touch = e.touches[0];
-                        this.magnet.x = touch.clientX - rect.left - this.magnet.dragOffsetX;
-                        this.magnet.y = touch.clientY - rect.top - this.magnet.dragOffsetY;
-                        
-                        // Keep magnet within bounds
-                        this.magnet.x = Math.max(this.magnet.width/2, Math.min(this.width - this.magnet.width/2, this.magnet.x));
-                        this.magnet.y = Math.max(this.magnet.height/2, Math.min(this.height - this.magnet.height/2, this.magnet.y));
-                    }
-                });
-                
-                this.canvas.addEventListener('touchend', () => {
-                    this.magnet.isDragging = false;
-                });
-                
-                // Control panel events
-                document.getElementById('showFieldLines').addEventListener('change', (e) => {
-                    this.fieldLinesVisible = e.target.checked;
-                });
-                
-                document.getElementById('showVoltmeter').addEventListener('change', (e) => {
-                    this.voltmeter.visible = e.target.checked;
-                });
-                
-                document.getElementById('showFlux').addEventListener('change', (e) => {
-                    this.fluxVisible = e.target.checked;
-                });
-                
-                document.getElementById('reversePolarity').addEventListener('click', () => {
-                    [this.magnet.northColor, this.magnet.southColor] = 
-                        [this.magnet.southColor, this.magnet.northColor];
-                });
-                
-                document.getElementById('toggleMovement').addEventListener('click', () => {
-                    this.magnet.movementDirection *= -1;
-                });
-                
-                document.getElementById('moveLeft').addEventListener('click', () => {
-                    this.magnet.autoMoving = true;
-                    this.magnet.movementDirection = -1;
-                    this.magnet.movementSpeed = 2;
-                });
-                
-                document.getElementById('moveRight').addEventListener('click', () => {
-                    this.magnet.autoMoving = true;
-                    this.magnet.movementDirection = 1;
-                    this.magnet.movementSpeed = 2;
-                });
-                
-                document.getElementById('coilTurns').addEventListener('input', (e) => {
-                    const turns = parseInt(e.target.value);
-                    this.coils[0].turns = turns;
-                    if (this.coils[1].visible) this.coils[1].turns = turns;
-                    document.getElementById('turnsValue').textContent = turns;
-                });
-                
-                document.getElementById('coilSize').addEventListener('input', (e) => {
-                    const size = parseInt(e.target.value);
-                    this.coils[0].radius = size;
-                    if (this.coils[1].visible) this.coils[1].radius = size;
-                    document.getElementById('sizeValue').textContent = size;
-                });
-                
-                document.getElementById('coilConfig1').addEventListener('click', () => {
-                    this.coils[0].visible = true;
-                    this.coils[1].visible = false;
-                });
-                
-                document.getElementById('coilConfig2').addEventListener('click', () => {
-                    this.coils[0].visible = true;
-                    this.coils[1].visible = true;
-                });
+                        const mouseX = (touch.clientX - rect.left) * (this.width / rect.width);
+                        const mouseY = (touch.clientY - rect.top) * (this.height / rect.height);
+                        if (this.isPointInMagnet(mouseX, mouseY)) {
+                            this.magnet.isDragging = true;
+                            this.magnet.dragOffsetX = mouseX - this.magnet.x;
+                            this.magnet.dragOffsetY = mouseY - this.magnet.y;
+                            this.magnet.autoMoving = false;
+                            this.magnet.movementSpeed = 0;
+                        }
+                    });
+
+                    this.canvas.addEventListener('touchmove', (e) => {
+                        e.preventDefault();
+                        if (this.magnet.isDragging) {
+                            const rect = this.canvas.getBoundingClientRect();
+                            const touch = e.touches[0];
+                            this.magnet.x = (touch.clientX - rect.left) * (this.width / rect.width) - this.magnet.dragOffsetX;
+                            this.magnet.y = (touch.clientY - rect.top) * (this.height / rect.height) - this.magnet.dragOffsetY;
+                            this.magnet.x = Math.max(this.magnet.width / 2, Math.min(this.width - this.magnet.width / 2, this.magnet.x));
+                            this.magnet.y = Math.max(this.magnet.height / 2, Math.min(this.height - this.magnet.height / 2, this.magnet.y));
+                        }
+                    });
+
+                    this.canvas.addEventListener('touchend', () => {
+                        this.magnet.isDragging = false;
+                    });
+
+                    document.getElementById('showFieldLines').addEventListener('change', (e) => {
+                        this.fieldLinesVisible = e.target.checked;
+                    });
+
+                    document.getElementById('showVoltmeter').addEventListener('change', (e) => {
+                        this.voltmeter.visible = e.target.checked;
+                    });
+
+                    document.getElementById('showFlux').addEventListener('change', (e) => {
+                        this.fluxVisible = e.target.checked;
+                    });
+
+                    document.getElementById('reversePolarity').addEventListener('click', () => {
+                        [this.magnet.northColor, this.magnet.southColor] = [this.magnet.southColor, this.magnet.northColor];
+                    });
+
+                    document.getElementById('toggleMovement').addEventListener('click', () => {
+                        this.magnet.movementDirection *= -1;
+                    });
+
+                    document.getElementById('moveLeft').addEventListener('click', () => {
+                        this.magnet.autoMoving = true;
+                        this.magnet.movementDirection = -1;
+                        this.magnet.movementSpeed = 2 * this.scaleX;
+                    });
+
+                    document.getElementById('moveRight').addEventListener('click', () => {
+                        this.magnet.autoMoving = true;
+                        this.magnet.movementDirection = 1;
+                        this.magnet.movementSpeed = 2 * this.scaleX;
+                    });
+
+                    document.getElementById('coilTurns').addEventListener('input', (e) => {
+                        const turns = parseInt(e.target.value);
+                        this.coils[0].turns = turns;
+                        if (this.coils[1].visible) this.coils[1].turns = turns;
+                        document.getElementById('turnsValue').textContent = turns;
+                    });
+
+                    document.getElementById('coilSize').addEventListener('input', (e) => {
+                        const size = parseInt(e.target.value) * this.scaleX;
+                        this.coils[0].radius = size;
+                        if (this.coils[1].visible) this.coils[1].radius = size;
+                        document.getElementById('sizeValue').textContent = Math.round(size / this.scaleX);
+                    });
+
+                    document.getElementById('coilConfig1').addEventListener('click', () => {
+                        this.coils[0].visible = true;
+                        this.coils[1].visible = false;
+                    });
+
+                    document.getElementById('coilConfig2').addEventListener('click', () => {
+                        this.coils[0].visible = true;
+                        this.coils[1].visible = true;
+                    });
+                } catch (error) {
+                    this.showError(`Error setting up event listeners: ${error.message}`);
+                }
             }
-            
+
             isPointInMagnet(x, y) {
-                return x > this.magnet.x - this.magnet.width/2 && 
-                       x < this.magnet.x + this.magnet.width/2 && 
-                       y > this.magnet.y - this.magnet.height/2 && 
-                       y < this.magnet.y + this.magnet.height/2;
+                return x > this.magnet.x - this.magnet.width / 2 &&
+                       x < this.magnet.x + this.magnet.width / 2 &&
+                       y > this.magnet.y - this.magnet.height / 2 &&
+                       y < this.magnet.y + this.magnet.height / 2;
             }
-            
+
             calculateMagneticField(x, y) {
-                // Simplified magnetic field calculation for a bar magnet
                 const dx = x - this.magnet.x;
                 const dy = y - this.magnet.y;
-                const distanceSq = dx*dx + dy*dy;
-                
+                const distanceSq = dx * dx + dy * dy;
                 if (distanceSq < 1) return { bx: 0, by: 0 };
-                
-                // Dipole field approximation
                 const strength = this.magnet.strength * 1000;
                 const r = Math.sqrt(distanceSq);
                 const cosTheta = dx / r;
                 const sinTheta = dy / r;
-                
-                // Magnetic dipole field formula: B = (μ₀/4π) * (3(m·r̂)r̂ - m)/r³
-                // Simplified without constants for visualization
                 const factor = strength / (r * r * r);
                 const bx = factor * (3 * cosTheta * cosTheta - 1);
                 const by = factor * (3 * cosTheta * sinTheta);
-                
-                // Flip y component if magnet is reversed
-                const polarity = this.magnet.northColor === '#ff4444' ? 1 : -1;
-                
-                return {
-                    bx: bx * polarity,
-                    by: by * polarity
-                };
+                const polarity = this.magnet.northColor === '#ef4444' ? 1 : -1;
+                return { bx: bx * polarity, by: by * polarity };
             }
-            
+
             calculateFluxThroughCoil(coil) {
-                // Approximate the magnetic flux through the coil
                 const samples = 20;
                 let totalFlux = 0;
-                
                 for (let i = 0; i < samples; i++) {
                     const angle = (i / samples) * Math.PI * 2;
                     const sampleX = coil.x + Math.cos(angle) * coil.radius;
                     const sampleY = coil.y + Math.sin(angle) * coil.radius;
-                    
                     const field = this.calculateMagneticField(sampleX, sampleY);
                     const tangentX = -Math.sin(angle);
                     const tangentY = Math.cos(angle);
-                    
-                    // Flux contribution is B·n̂ where n̂ is normal to the coil
                     totalFlux += field.bx * tangentY - field.by * tangentX;
                 }
-                
-                // Scale by number of turns and coil size
                 return totalFlux * coil.turns * coil.radius / samples;
             }
-            
+
             update(deltaTime) {
-                // Handle automatic magnet movement
-                if (this.magnet.autoMoving && !this.magnet.isDragging) {
-                    this.magnet.x += this.magnet.movementSpeed * this.magnet.movementDirection;
-                    
-                    // Reverse direction at edges
-                    if (this.magnet.x < this.magnet.width/2 || this.magnet.x > this.width - this.magnet.width/2) {
-                        this.magnet.movementDirection *= -1;
+                try {
+                    if (this.magnet.autoMoving && !this.magnet.isDragging) {
+                        this.magnet.x += this.magnet.movementSpeed * this.magnet.movementDirection;
+                        if (this.magnet.x < this.magnet.width / 2 || this.magnet.x > this.width - this.magnet.width / 2) {
+                            this.magnet.movementDirection *= -1;
+                        }
+                        this.magnet.x = Math.max(this.magnet.width / 2, Math.min(this.width - this.magnet.width / 2, this.magnet.x));
                     }
-                    
-                    // Keep within bounds
-                    this.magnet.x = Math.max(this.magnet.width/2, 
-                        Math.min(this.width - this.magnet.width/2, this.magnet.x));
-                }
-                
-                // Calculate velocity for EMF calculation
-                const velocity = (this.magnet.x - this.lastMagnetX) / (deltaTime || 16);
-                this.lastMagnetX = this.magnet.x;
-                
-                // Update each coil
-                for (const coil of this.coils) {
-                    if (!coil.visible) continue;
-                    
-                    // Calculate induced EMF (Faraday's Law: emf = -dΦ/dt)
-                    const newFlux = this.calculateFluxThroughCoil(coil);
-                    const fluxChange = newFlux - (coil.lastFlux || newFlux);
-                    coil.lastFlux = newFlux;
-                    
-                    // Convert flux change to voltage (simplified)
-                    const emf = -fluxChange * 0.1;
-                    
-                    // Add effect of velocity (motional EMF)
-                    const motionalEMF = velocity * 0.05 * this.magnet.strength;
-                    const totalEMF = emf + motionalEMF;
-                    
-                    // Update voltmeter reading (only for first coil)
-                    if (coil === this.coils[0]) {
-                        this.voltmeter.voltage = totalEMF;
-                    }
-                    
-                    // Calculate current in the coil (Ohm's Law)
-                    coil.current = totalEMF / coil.resistance;
-                    
-                    // Limit current
-                    if (Math.abs(coil.current) > coil.maxCurrent) {
-                        coil.current = coil.maxCurrent * Math.sign(coil.current);
-                    }
-                    
-                    // Update bulb brightness (0-1 scale)
-                    coil.bulbBrightness = Math.min(1, Math.abs(coil.current) / coil.maxCurrent);
-                }
-            }
-            
-            animate(timestamp = 0) {
-                const deltaTime = timestamp - this.lastTime;
-                this.lastTime = timestamp;
-                
-                this.update(deltaTime);
-                this.draw();
-                
-                this.animationId = requestAnimationFrame((t) => this.animate(t));
-            }
-            
-            draw() {
-                const ctx = this.ctx;
-                
-                // Clear canvas
-                ctx.clearRect(0, 0, this.width, this.height);
-                
-                // Draw background grid
-                this.drawGrid();
-                
-                // Draw magnetic field lines if enabled
-                if (this.fieldLinesVisible) {
-                    this.drawFieldLines();
-                }
-                
-                // Draw coils
-                for (const coil of this.coils) {
-                    if (coil.visible) {
-                        this.drawCoil(coil);
-                        this.drawBulb(coil);
-                    }
-                }
-                
-                // Draw magnet
-                this.drawMagnet();
-                
-                // Draw movement arrow
-                if (this.magnet.autoMoving || this.magnet.isDragging) {
-                    this.drawMovementArrow();
-                }
-                
-                // Draw voltmeter if enabled
-                if (this.voltmeter.visible) {
-                    this.drawVoltmeter();
-                }
-                
-                // Draw magnetic flux if enabled
-                if (this.fluxVisible) {
+
+                    const velocity = (this.magnet.x - this.lastMagnetX) / (deltaTime || 16);
+                    this.lastMagnetX = this.magnet.x;
+
                     for (const coil of this.coils) {
-                        if (coil.visible) {
-                            this.drawFluxIndicator(coil);
+                        if (!coil.visible) continue;
+                        const newFlux = this.calculateFluxThroughCoil(coil);
+                        const fluxChange = newFlux - (coil.lastFlux || newFlux);
+                        coil.lastFlux = newFlux;
+                        const emf = -fluxChange * 0.1;
+                        const motionalEMF = velocity * 0.05 * this.magnet.strength;
+                        const totalEMF = emf + motionalEMF;
+                        if (coil === this.coils[0]) {
+                            this.voltmeter.voltage = totalEMF;
+                        }
+                        coil.current = totalEMF / coil.resistance;
+                        coil.current = Math.abs(coil.current) > coil.maxCurrent ? coil.maxCurrent * Math.sign(coil.current) : coil.current;
+                        coil.bulbBrightness = Math.min(1, Math.abs(coil.current) / coil.maxCurrent);
+                    }
+                } catch (error) {
+                    this.showError(`Error in update: ${error.message}`);
+                }
+            }
+
+            animate(timestamp = 0) {
+                try {
+                    const deltaTime = timestamp - this.lastTime;
+                    this.lastTime = timestamp;
+                    this.update(deltaTime);
+                    this.draw();
+                    requestAnimationFrame((t) => this.animate(t));
+                } catch (error) {
+                    this.showError(`Error in animation: ${error.message}`);
+                }
+            }
+
+            draw() {
+                try {
+                    const ctx = this.ctx;
+                    ctx.clearRect(0, 0, this.width, this.height);
+
+                    // Draw grid
+                    ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
+                    ctx.lineWidth = 1 * this.scaleX;
+                    for (let x = 0; x <= this.width; x += 20 * this.scaleX) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, this.height);
+                        ctx.stroke();
+                    }
+                    for (let y = 0; y <= this.height; y += 20 * this.scaleY) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(this.width, y);
+                        ctx.stroke();
+                    }
+
+                    // Draw field lines
+                    if (this.fieldLinesVisible) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.lineWidth = 1.5 * this.scaleX;
+                        ctx.shadowBlur = 10 * this.scaleX;
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+                        const steps = 30;
+                        const lineLength = 10 * this.scaleX;
+                        const startX = this.magnet.x;
+                        const startY = this.magnet.y - this.magnet.height / 2;
+                        for (let i = 0; i < 16; i++) {
+                            const angle = (i / 16) * Math.PI * 2;
+                            let x = startX + Math.cos(angle) * 5 * this.scaleX;
+                            let y = startY + Math.sin(angle) * 5 * this.scaleY;
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            for (let j = 0; j < steps; j++) {
+                                const field = this.calculateMagneticField(x, y);
+                                const mag = Math.sqrt(field.bx * field.bx + field.by * field.by);
+                                if (mag < 0.01) break;
+                                const dx = field.bx / mag * lineLength;
+                                const dy = field.by / mag * lineLength;
+                                x += dx;
+                                y += dy;
+                                ctx.lineTo(x, y);
+                                if (x < 0 || x > this.width || y < 0 || y > this.height) break;
+                            }
+                            ctx.stroke();
+                        }
+                        ctx.shadowBlur = 0;
+                    }
+
+                    // Draw coils
+                    for (const coil of this.coils) {
+                        if (!coil.visible) continue;
+                        const turns = coil.turns;
+                        const radius = coil.radius;
+                        ctx.strokeStyle = '#4b5563';
+                        ctx.lineWidth = 2.5 * this.scaleX;
+                        ctx.shadowBlur = 5 * this.scaleX;
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                        ctx.beginPath();
+                        for (let i = 0; i <= turns; i++) {
+                            const angle = i * Math.PI * 2 / turns;
+                            const x = coil.x + Math.cos(angle) * radius;
+                            const y = coil.y + Math.sin(angle) * radius;
+                            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
+                        ctx.strokeStyle = '#9ca3af';
+                        ctx.lineWidth = 1 * this.scaleX;
+                        for (let i = 0; i < turns; i++) {
+                            const angle1 = i * Math.PI * 2 / turns;
+                            const angle2 = (i + 0.5) * Math.PI * 2 / turns;
+                            const x1 = coil.x + Math.cos(angle1) * (radius - 3 * this.scaleX);
+                            const y1 = coil.y + Math.sin(angle1) * (radius - 3 * this.scaleY);
+                            const x2 = coil.x + Math.cos(angle2) * (radius + 3 * this.scaleX);
+                            const y2 = coil.y + Math.sin(angle2) * (radius + 3 * this.scaleY);
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.stroke();
+                        }
+                        ctx.strokeStyle = '#1f2937';
+                        ctx.lineWidth = 3 * this.scaleX;
+                        ctx.beginPath();
+                        ctx.moveTo(coil.x + radius, coil.y);
+                        ctx.lineTo(coil.x + radius + 50 * this.scaleX, coil.y);
+                        ctx.lineTo(coil.x + radius + 50 * this.scaleX, coil.y - 50 * this.scaleY);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(coil.x - radius, coil.y);
+                        ctx.lineTo(coil.x - radius - 30 * this.scaleX, coil.y);
+                        ctx.lineTo(coil.x - radius - 30 * this.scaleX, coil.y - 50 * this.scaleY);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+
+                        // Draw bulb
+                        const bulbX = coil.x + coil.radius + 50 * this.scaleX;
+                        const bulbY = coil.y - 50 * this.scaleY;
+                        const brightness = coil.bulbBrightness;
+                        ctx.fillStyle = '#4b5563';
+                        ctx.beginPath();
+                        ctx.moveTo(bulbX - 10 * this.scaleX, bulbY - 5 * this.scaleY);
+                        ctx.lineTo(bulbX - 5 * this.scaleX, bulbY - 15 * this.scaleY);
+                        ctx.lineTo(bulbX + 5 * this.scaleX, bulbY - 15 * this.scaleY);
+                        ctx.lineTo(bulbX + 10 * this.scaleX, bulbY - 5 * this.scaleY);
+                        ctx.closePath();
+                        ctx.fill();
+                        const glowColor = `rgba(255, 255, 100, ${brightness})`;
+                        ctx.fillStyle = brightness > 0 ? glowColor : 'rgba(240, 240, 240, 0.9)';
+                        ctx.beginPath();
+                        ctx.ellipse(bulbX, bulbY - 25 * this.scaleY, 12 * this.scaleX, 20 * this.scaleY, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = brightness > 0 ? `rgba(255, 200, 0, ${brightness})` : '#4b5563';
+                        ctx.lineWidth = 1 * this.scaleX;
+                        ctx.beginPath();
+                        ctx.moveTo(bulbX, bulbY - 15 * this.scaleY);
+                        ctx.lineTo(bulbX, bulbY - 25 * this.scaleY);
+                        ctx.stroke();
+                        if (brightness > 0) {
+                            const glowRadius = (10 + brightness * 15) * this.scaleX;
+                            const gradient = ctx.createRadialGradient(bulbX, bulbY - 25 * this.scaleY, 0, bulbX, bulbY - 25 * this.scaleY, glowRadius);
+                            gradient.addColorStop(0, glowColor);
+                            gradient.addColorStop(1, 'rgba(255, 255, 100, 0)');
+                            ctx.fillStyle = gradient;
+                            ctx.beginPath();
+                            ctx.arc(bulbX, bulbY - 25 * this.scaleY, glowRadius, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        if (Math.abs(coil.current) > 0.01) {
+                            const direction = Math.sign(coil.current);
+                            const arrowX = coil.x + coil.radius + 25 * this.scaleX;
+                            const arrowY = coil.y - 10 * this.scaleY;
+                            ctx.fillStyle = direction > 0 ? '#22c55e' : '#ef4444';
+                            ctx.beginPath();
+                            if (direction > 0) {
+                                ctx.moveTo(arrowX - 10 * this.scaleX, arrowY - 5 * this.scaleY);
+                                ctx.lineTo(arrowX + 5 * this.scaleX, arrowY);
+                                ctx.lineTo(arrowX - 10 * this.scaleX, arrowY + 5 * this.scaleY);
+                            } else {
+                                ctx.moveTo(arrowX + 10 * this.scaleX, arrowY - 5 * this.scaleY);
+                                ctx.lineTo(arrowX - 5 * this.scaleX, arrowY);
+                                ctx.lineTo(arrowX + 10 * this.scaleX, arrowY + 5 * this.scaleY);
+                            }
+                            ctx.closePath();
+                            ctx.fill();
                         }
                     }
-                }
-            }
-            
-            drawGrid() {
-                const ctx = this.ctx;
-                ctx.strokeStyle = '#e0e0e0';
-                ctx.lineWidth = 1;
-                
-                // Vertical lines
-                for (let x = 0; x <= this.width; x += 20) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, this.height);
-                    ctx.stroke();
-                }
-                
-                // Horizontal lines
-                for (let y = 0; y <= this.height; y += 20) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(this.width, y);
-                    ctx.stroke();
-                }
-            }
-            
-            drawFieldLines() {
-                const ctx = this.ctx;
-                const steps = 30;
-                const lineLength = 10;
-                
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.lineWidth = 1.5;
-                
-                // Draw field lines starting from north pole
-                const startX = this.magnet.x;
-                const startY = this.magnet.y - this.magnet.height/2;
-                
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i / 16) * Math.PI * 2;
-                    let x = startX + Math.cos(angle) * 5;
-                    let y = startY + Math.sin(angle) * 5;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    
-                    for (let j = 0; j < steps; j++) {
-                        const field = this.calculateMagneticField(x, y);
-                        const mag = Math.sqrt(field.bx * field.bx + field.by * field.by);
-                        
-                        if (mag < 0.01) break;
-                        
-                        // Normalize and scale
-                        const dx = field.bx / mag * lineLength;
-                        const dy = field.by / mag * lineLength;
-                        
-                        x += dx;
-                        y += dy;
-                        
-                        ctx.lineTo(x, y);
-                        
-                        // Stop if out of bounds
-                        if (x < 0 || x > this.width || y < 0 || y > this.height) break;
+
+                    // Draw magnet
+                    ctx.fillStyle = '#e5e7eb';
+                    ctx.shadowBlur = 8 * this.scaleX;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                    ctx.fillRect(this.magnet.x - this.magnet.width / 2, this.magnet.y - this.magnet.height / 2, this.magnet.width, this.magnet.height);
+                    ctx.strokeStyle = '#1f2937';
+                    ctx.lineWidth = 2 * this.scaleX;
+                    ctx.strokeRect(this.magnet.x - this.magnet.width / 2, this.magnet.y - this.magnet.height / 2, this.magnet.width, this.magnet.height);
+                    const poleHeight = this.magnet.height / 3;
+                    ctx.fillStyle = this.magnet.northColor;
+                    ctx.fillRect(this.magnet.x - this.magnet.width / 2, this.magnet.y - this.magnet.height / 2, this.magnet.width, poleHeight);
+                    ctx.fillStyle = this.magnet.southColor;
+                    ctx.fillRect(this.magnet.x - this.magnet.width / 2, this.magnet.y + this.magnet.height / 2 - poleHeight, this.magnet.width, poleHeight);
+                    ctx.fillStyle = 'white';
+                    ctx.font = `bold ${16 * this.scaleX}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('N', this.magnet.x, this.magnet.y - this.magnet.height / 2 + poleHeight / 2);
+                    ctx.fillText('S', this.magnet.x, this.magnet.y + this.magnet.height / 2 - poleHeight / 2);
+                    if (this.magnet.isDragging) {
+                        ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
+                        ctx.lineWidth = 2 * this.scaleX;
+                        ctx.setLineDash([5 * this.scaleX, 5 * this.scaleX]);
+                        ctx.strokeRect(this.magnet.x - this.magnet.width / 2 - 5 * this.scaleX, this.magnet.y - this.magnet.height / 2 - 5 * this.scaleY, this.magnet.width + 10 * this.scaleX, this.magnet.height + 10 * this.scaleY);
+                        ctx.setLineDash([]);
                     }
-                    
-                    ctx.stroke();
-                }
-            }
-            
-            drawCoil(coil) {
-                const ctx = this.ctx;
-                const turns = coil.turns;
-                const radius = coil.radius;
-                
-                // Draw coil wire
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                
-                for (let i = 0; i <= turns; i++) {
-                    const angle = i * Math.PI * 2 / turns;
-                    const x = coil.x + Math.cos(angle) * radius;
-                    const y = coil.y + Math.sin(angle) * radius;
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
+                    ctx.shadowBlur = 0;
+
+                    // Draw movement arrow
+                    if (this.magnet.autoMoving || this.magnet.isDragging) {
+                        const direction = this.magnet.movementDirection;
+                        const x = this.magnet.x;
+                        const y = this.magnet.y + this.magnet.height / 2 + 20 * this.scaleY;
+                        ctx.fillStyle = '#22c55e';
+                        ctx.beginPath();
+                        if (direction > 0) {
+                            ctx.moveTo(x - 15 * this.scaleX, y - 5 * this.scaleY);
+                            ctx.lineTo(x + 5 * this.scaleX, y);
+                            ctx.lineTo(x - 15 * this.scaleX, y + 5 * this.scaleY);
+                        } else {
+                            ctx.moveTo(x + 15 * this.scaleX, y - 5 * this.scaleY);
+                            ctx.lineTo(x - 5 * this.scaleX, y);
+                            ctx.lineTo(x + 15 * this.scaleX, y + 5 * this.scaleY);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.fillStyle = '#22c55e';
+                        ctx.font = `${12 * this.scaleX}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.fillText(direction > 0 ? '→ Moving' : '← Moving', x, y + 20 * this.scaleY);
                     }
-                }
-                
-                ctx.stroke();
-                
-                // Draw coil fill to show turns
-                ctx.strokeStyle = '#999';
-                ctx.lineWidth = 1;
-                
-                for (let i = 0; i < turns; i++) {
-                    const angle1 = i * Math.PI * 2 / turns;
-                    const angle2 = (i + 0.5) * Math.PI * 2 / turns;
-                    
-                    const x1 = coil.x + Math.cos(angle1) * (radius - 3);
-                    const y1 = coil.y + Math.sin(angle1) * (radius - 3);
-                    const x2 = coil.x + Math.cos(angle2) * (radius + 3);
-                    const y2 = coil.y + Math.sin(angle2) * (radius + 3);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
-                }
-                
-                // Draw wires to bulb
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(coil.x + radius, coil.y);
-                ctx.lineTo(coil.x + radius + 50, coil.y);
-                ctx.lineTo(coil.x + radius + 50, coil.y - 50);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(coil.x - radius, coil.y);
-                ctx.lineTo(coil.x - radius - 30, coil.y);
-                ctx.lineTo(coil.x - radius - 30, coil.y - 50);
-                ctx.stroke();
-            }
-            
-            drawMagnet() {
-                const ctx = this.ctx;
-                
-                // Draw magnet body
-                ctx.fillStyle = '#ddd';
-                ctx.fillRect(
-                    this.magnet.x - this.magnet.width/2,
-                    this.magnet.y - this.magnet.height/2,
-                    this.magnet.width,
-                    this.magnet.height
-                );
-                
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(
-                    this.magnet.x - this.magnet.width/2,
-                    this.magnet.y - this.magnet.height/2,
-                    this.magnet.width,
-                    this.magnet.height
-                );
-                
-                // Draw north and south poles
-                const poleHeight = this.magnet.height/3;
-                
-                // North pole (top)
-                ctx.fillStyle = this.magnet.northColor;
-                ctx.fillRect(
-                    this.magnet.x - this.magnet.width/2,
-                    this.magnet.y - this.magnet.height/2,
-                    this.magnet.width,
-                    poleHeight
-                );
-                
-                // South pole (bottom)
-                ctx.fillStyle = this.magnet.southColor;
-                ctx.fillRect(
-                    this.magnet.x - this.magnet.width/2,
-                    this.magnet.y + this.magnet.height/2 - poleHeight,
-                    this.magnet.width,
-                    poleHeight
-                );
-                
-                // Draw N and S labels
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                // North label
-                ctx.fillText('N', 
-                    this.magnet.x, 
-                    this.magnet.y - this.magnet.height/2 + poleHeight/2);
-                
-                // South label
-                ctx.fillText('S', 
-                    this.magnet.x, 
-                    this.magnet.y + this.magnet.height/2 - poleHeight/2);
-                
-                // Draw drag handle if dragging
-                if (this.magnet.isDragging) {
-                    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([5, 5]);
-                    ctx.strokeRect(
-                        this.magnet.x - this.magnet.width/2 - 5,
-                        this.magnet.y - this.magnet.height/2 - 5,
-                        this.magnet.width + 10,
-                        this.magnet.height + 10
-                    );
-                    ctx.setLineDash([]);
-                }
-            }
-            
-            drawMovementArrow() {
-                const ctx = this.ctx;
-                const direction = this.magnet.movementDirection;
-                const x = this.magnet.x;
-                const y = this.magnet.y + this.magnet.height/2 + 20;
-                
-                ctx.fillStyle = '#4CAF50';
-                ctx.beginPath();
-                
-                if (direction > 0) {
-                    // Right arrow
-                    ctx.moveTo(x - 15, y - 5);
-                    ctx.lineTo(x + 5, y);
-                    ctx.lineTo(x - 15, y + 5);
-                } else {
-                    // Left arrow
-                    ctx.moveTo(x + 15, y - 5);
-                    ctx.lineTo(x - 5, y);
-                    ctx.lineTo(x + 15, y + 5);
-                }
-                
-                ctx.closePath();
-                ctx.fill();
-                
-                // Draw label
-                ctx.fillStyle = '#4CAF50';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(direction > 0 ? '→ 移动方向' : '← 移动方向', x, y + 20);
-            }
-            
-            drawBulb(coil) {
-                const ctx = this.ctx;
-                const bulbX = coil.x + coil.radius + 50;
-                const bulbY = coil.y - 50;
-                const brightness = coil.bulbBrightness;
-                
-                // Draw bulb base
-                ctx.fillStyle = '#666';
-                ctx.beginPath();
-                ctx.moveTo(bulbX - 10, bulbY - 5);
-                ctx.lineTo(bulbX - 5, bulbY - 15);
-                ctx.lineTo(bulbX + 5, bulbY - 15);
-                ctx.lineTo(bulbX + 10, bulbY - 5);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Draw bulb glass
-                const glowColor = `rgba(255, 255, 100, ${brightness})`;
-                ctx.fillStyle = brightness > 0 ? glowColor : 'rgba(240, 240, 240, 0.8)';
-                ctx.beginPath();
-                ctx.ellipse(bulbX, bulbY - 25, 12, 20, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Draw filament
-                ctx.strokeStyle = brightness > 0 ? `rgba(255, 200, 0, ${brightness})` : '#666';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(bulbX, bulbY - 15);
-                ctx.lineTo(bulbX, bulbY - 25);
-                ctx.stroke();
-                
-                // Draw glow effect if bulb is on
-                if (brightness > 0) {
-                    const glowRadius = 10 + brightness * 15;
-                    const gradient = ctx.createRadialGradient(
-                        bulbX, bulbY - 25, 0,
-                        bulbX, bulbY - 25, glowRadius
-                    );
-                    gradient.addColorStop(0, glowColor);
-                    gradient.addColorStop(1, 'rgba(255, 255, 100, 0)');
-                    
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(bulbX, bulbY - 25, glowRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                
-                // Draw current direction indicator
-                if (Math.abs(coil.current) > 0.01) {
-                    const direction = Math.sign(coil.current);
-                    const arrowX = coil.x + coil.radius + 25;
-                    const arrowY = coil.y - 10;
-                    
-                    ctx.fillStyle = direction > 0 ? '#4CAF50' : '#F44336';
-                    ctx.beginPath();
-                    
-                    if (direction > 0) {
-                        // Right arrow
-                        ctx.moveTo(arrowX - 10, arrowY - 5);
-                        ctx.lineTo(arrowX + 5, arrowY);
-                        ctx.lineTo(arrowX - 10, arrowY + 5);
-                    } else {
-                        // Left arrow
-                        ctx.moveTo(arrowX + 10, arrowY - 5);
-                        ctx.lineTo(arrowX - 5, arrowY);
-                        ctx.lineTo(arrowX + 10, arrowY + 5);
+
+                    // Draw voltmeter
+                    if (this.voltmeter.visible) {
+                        const voltage = this.voltmeter.voltage;
+                        const absVoltage = Math.abs(voltage);
+                        const maxVoltage = 5;
+                        ctx.fillStyle = '#f1f5f9';
+                        ctx.shadowBlur = 5 * this.scaleX;
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                        ctx.fillRect(this.voltmeter.x, this.voltmeter.y, this.voltmeter.width, this.voltmeter.height);
+                        ctx.strokeStyle = '#1f2937';
+                        ctx.lineWidth = 2 * this.scaleX;
+                        ctx.strokeRect(this.voltmeter.x, this.voltmeter.y, this.voltmeter.width, this.voltmeter.height);
+                        const centerX = this.voltmeter.x + this.voltmeter.width / 2;
+                        const centerY = this.voltmeter.y + this.voltmeter.height / 2;
+                        const radius = 25 * this.scaleX;
+                        ctx.strokeStyle = '#4b5563';
+                        ctx.lineWidth = 1 * this.scaleX;
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, radius, -Math.PI * 0.6, Math.PI * 0.6);
+                        ctx.stroke();
+                        for (let i = -6; i <= 6; i++) {
+                            const angle = i * Math.PI * 0.1;
+                            const startX = centerX + Math.cos(angle) * radius;
+                            const startY = centerY + Math.sin(angle) * radius;
+                            const endX = centerX + Math.cos(angle) * (radius - (i % 2 === 0 ? 8 * this.scaleX : 5 * this.scaleX));
+                            const endY = centerY + Math.sin(angle) * (radius - (i % 2 === 0 ? 8 * this.scaleY : 5 * this.scaleY));
+                            ctx.beginPath();
+                            ctx.moveTo(startX, startY);
+                            ctx.lineTo(endX, endY);
+                            ctx.stroke();
+                        }
+                        const needleAngle = Math.max(-Math.PI * 0.6, Math.min(Math.PI * 0.6, (voltage / maxVoltage) * Math.PI * 0.6));
+                        ctx.strokeStyle = voltage >= 0 ? '#22c55e' : '#ef4444';
+                        ctx.lineWidth = 2 * this.scaleX;
+                        ctx.beginPath();
+                        ctx.moveTo(centerX, centerY);
+                        ctx.lineTo(centerX + Math.cos(needleAngle) * (radius - 5 * this.scaleX), centerY + Math.sin(needleAngle) * (radius - 5 * this.scaleY));
+                        ctx.stroke();
+                        ctx.fillStyle = '#1f2937';
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, 3 * this.scaleX, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = `${14 * this.scaleX}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${voltage.toFixed(2)} V`, centerX, this.voltmeter.y + this.voltmeter.height - 10 * this.scaleY);
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = `bold ${12 * this.scaleX}px Arial`;
+                        ctx.fillText('Voltage', centerX, this.voltmeter.y + 15 * this.scaleY);
+                        ctx.shadowBlur = 0;
                     }
-                    
-                    ctx.closePath();
-                    ctx.fill();
+
+                    // Draw flux indicator
+                    if (this.fluxVisible) {
+                        for (const coil of this.coils) {
+                            if (!coil.visible) continue;
+                            const flux = coil.lastFlux || 0;
+                            const absFlux = Math.abs(flux);
+                            const maxFlux = 50;
+                            const x = coil.x + coil.radius + 30 * this.scaleX;
+                            const y = coil.y + coil.radius + 20 * this.scaleY;
+                            const width = 20 * this.scaleX;
+                            const height = 80 * this.scaleY;
+                            ctx.fillStyle = '#f1f5f9';
+                            ctx.fillRect(x, y, width, height);
+                            ctx.strokeStyle = '#1f2937';
+                            ctx.lineWidth = 1 * this.scaleX;
+                            ctx.strokeRect(x, y, width, height);
+                            const barHeight = Math.min(height, (absFlux / maxFlux) * height);
+                            ctx.fillStyle = flux >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)';
+                            ctx.fillRect(x, flux >= 0 ? y + height - barHeight : y, width, barHeight);
+                            ctx.fillStyle = '#1f2937';
+                            ctx.font = `${10 * this.scaleX}px Arial`;
+                            ctx.textAlign = 'center';
+                            ctx.fillText('Φ', x + width / 2, y + height + 15 * this.scaleY);
+                        }
+                    }
+                } catch (error) {
+                    this.showError(`Error in draw: ${error.message}`);
                 }
-            }
-            
-            drawVoltmeter() {
-                const ctx = this.ctx;
-                const voltage = this.voltmeter.voltage;
-                const absVoltage = Math.abs(voltage);
-                const maxVoltage = 5; // Scale for display
-                
-                // Draw voltmeter box
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(
-                    this.voltmeter.x,
-                    this.voltmeter.y,
-                    this.voltmeter.width,
-                    this.voltmeter.height
-                );
-                
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(
-                    this.voltmeter.x,
-                    this.voltmeter.y,
-                    this.voltmeter.width,
-                    this.voltmeter.height
-                );
-                
-                // Draw meter face
-                const centerX = this.voltmeter.x + this.voltmeter.width/2;
-                const centerY = this.voltmeter.y + this.voltmeter.height/2;
-                const radius = 25;
-                
-                // Draw meter arc
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, -Math.PI*0.6, Math.PI*0.6);
-                ctx.stroke();
-                
-                // Draw tick marks
-                for (let i = -6; i <= 6; i++) {
-                    const angle = i * Math.PI * 0.1;
-                    const startX = centerX + Math.cos(angle) * radius;
-                    const startY = centerY + Math.sin(angle) * radius;
-                    const endX = centerX + Math.cos(angle) * (radius - (i % 2 === 0 ? 8 : 5));
-                    const endY = centerY + Math.sin(angle) * (radius - (i % 2 === 0 ? 8 : 5));
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(endX, endY);
-                    ctx.stroke();
-                }
-                
-                // Draw needle
-                const needleAngle = Math.max(-Math.PI*0.6, Math.min(Math.PI*0.6, 
-                    (voltage / maxVoltage) * Math.PI*0.6));
-                
-                ctx.strokeStyle = voltage >= 0 ? '#4CAF50' : '#F44336';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(
-                    centerX + Math.cos(needleAngle) * (radius - 5),
-                    centerY + Math.sin(needleAngle) * (radius - 5)
-                );
-                ctx.stroke();
-                
-                // Draw center dot
-                ctx.fillStyle = '#333';
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Draw voltage reading
-                ctx.fillStyle = '#333';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${voltage.toFixed(2)} V`, centerX, this.voltmeter.y + this.voltmeter.height - 10);
-                
-                // Draw label
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText(this.voltmeter.label, centerX, this.voltmeter.y + 15);
-            }
-            
-            drawFluxIndicator(coil) {
-                const ctx = this.ctx;
-                const flux = coil.lastFlux || 0;
-                const absFlux = Math.abs(flux);
-                const maxFlux = 50; // Scale for display
-                
-                // Position indicator near coil
-                const x = coil.x + coil.radius + 30;
-                const y = coil.y + coil.radius + 20;
-                const width = 20;
-                const height = 80;
-                
-                // Draw background
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(x, y, width, height);
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(x, y, width, height);
-                
-                // Draw flux bar
-                const barHeight = Math.min(height, (absFlux / maxFlux) * height);
-                ctx.fillStyle = flux >= 0 ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)';
-                ctx.fillRect(
-                    x, 
-                    flux >= 0 ? y + height - barHeight : y,
-                    width,
-                    barHeight
-                );
-                
-                // Draw label
-                ctx.fillStyle = '#333';
-                ctx.font = '10px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Φ', x + width/2, y + height + 15);
             }
         }
-        
-        // Initialize simulation when page loads
+
         window.addEventListener('load', () => {
-            const canvas = document.getElementById('simulationCanvas');
-            new FaradaySimulation(canvas);
+            try {
+                const canvas = document.getElementById('simulationCanvas');
+                if (!canvas) {
+                    document.getElementById('error-message').classList.remove('hidden');
+                    document.getElementById('error-message').textContent = 'Canvas element not found.';
+                    return;
+                }
+                new FaradaySimulation(canvas);
+            } catch (error) {
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('error-message').textContent = `Initialization error: ${error.message}`;
+            }
         });
     </script>
 </body>
